@@ -1,8 +1,6 @@
 # KSP Digital — Sistem Unggah & Penilaian Dokumen Pembelajaran
 
-Aplikasi ini telah direstrukturisasi agar frontend dapat di-hosting di **Vercel** (atau hosting statis lainnya) dan backend tetap menggunakan **Google Apps Script** (GAS) sebagai API. Ini memisahkan antarmuka web (frontend) dari pengelolaan penyimpanan (Google Drive) dan database (Google Sheets) secara profesional.
-
----
+## Aplikasi ini telah direstrukturisasi agar frontend dapat di-hosting di **Vercel** (atau hosting statis lainnya) dan backend tetap menggunakan **Google Apps Script** (GAS) sebagai API. Ini memisahkan antarmuka web (frontend) dari pengelolaan penyimpanan (Google Drive) dan database (Google Sheets)
 
 ## Struktur Proyek
 
@@ -26,14 +24,16 @@ KSPdigital/
 ### Arsitektur Backend (Server-less via Google Apps Script)
 
 Backend menggunakan arsitektur Service Layer yang dipanggil melalui endpoint `doPost` di `Main.gs`:
+
 - File-file `.gs` harus disalin ke project Google Apps Script.
 - Semua pemanggilan menggunakan metode POST dengan format payload: `{ "action": "functionName", "data": {...} }`.
 
 ### Arsitektur Frontend (Vercel-Ready Static Web)
 
 Frontend adalah website statis murni yang tidak bergantung pada templating Apps Script (`<?!= ?>`):
+
 - `index.html` menyertakan file menggunakan `<link rel="stylesheet">` dan `<script src="...">`.
-- `api.js` memfasilitasi komunikasi `fetch` ke URL Web App Apps Script, serta menangani *Mock Mode* untuk testing secara lokal tanpa server.
+- `api.js` memfasilitasi komunikasi `fetch` ke URL Web App Apps Script, serta menangani _Mock Mode_ untuk testing secara lokal tanpa server.
 
 ---
 
@@ -85,6 +85,7 @@ Proses deployment terbagi dua: Deployment Backend (API) ke Google, dan Deploymen
 ## Mock Mode (Uji Coba Lokal Offline)
 
 Aplikasi memiliki fitur "Mock Mode" (Mode Simulasi) untuk development.
+
 - Mock mode akan aktif secara otomatis jika aplikasi dijalankan langsung dengan protokol `file://` di browser komputer lokal.
 - Mode ini menggunakan `localStorage` browser. Data unggahan tidak dikirim ke Google Sheet, tetapi disimpan sementara di browser, jadi Anda bisa mencoba fitur Upload File, Tab Asesor, Penilaian, dll tanpa perlu mengkonfigurasi Google Apps Script sama sekali.
 - Username/Password untuk login asesor lokal: `admin` / `admin` atau `asesor` / `kspwadaslintang`.
@@ -94,5 +95,6 @@ Aplikasi memiliki fitur "Mock Mode" (Mode Simulasi) untuk development.
 ## Akun Asesor Produksi
 
 Kredensial produksi dapat diubah via **Script Properties** di Google Apps Script editor (`Project Settings` -> `Script Properties`):
+
 - Parameter: `ASESOR_USERNAME` dan `ASESOR_PASSWORD`.
 - Jika belum di set, default yang dipakai adalah `asesor` / `kspwadaslintang`.
