@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="Sistem unggah dan penilaian dokumen pembelajaran ATP & Modul Ajar guru SMK Negeri 1 Wadaslintang" />
+    <title>KSP Digital - Sistem Unggah & Penilaian Dokumen</title>
+
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+    <!-- jQuery & Select2 for Fast Searchable Dropdowns -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Mock Active Notification -->
+      <div id="mockNotification" class="mock-badge">
+        ⚡ RUNNING IN LOCAL MOCK MODE: Data saved to browser localStorage. In Apps Script, standard Google Drive/Sheets
+        APIs will be used.
+      </div>
+
+      <header>
+        <div class="brand-section">
+          <div class="logo-area">
+            <span class="logo-badge">SMK Negeri 1 Wadaslintang</span>
+            <h1>KSP Digital 2026/2027</h1>
+            <p>Kelola, unggah, dan berikan penilaian terhadap dokumen pembelajaran ATP dan Modul Ajar guru.</p>
+          </div>
+        </div>
+
+        <!-- Real-time Dashboard Stats Widgets -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Total Unggahan</span>
+            <div class="stat-split-val">
+              <div class="stat-split-item">
+                <span class="stat-split-label">MA</span>
+                <span class="stat-val-small" id="statTotalMA">0</span>
+              </div>
+              <div class="stat-split-divider"></div>
+              <div class="stat-split-item">
+                <span class="stat-split-label">ATP</span>
+                <span class="stat-val-small" id="statTotalATP">0</span>
+              </div>
+            </div>
+            <span class="stat-desc">Dokumen terkumpul</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Selesai Dinilai</span>
+            <div class="stat-split-val" style="color: var(--success)">
+              <div class="stat-split-item">
+                <span class="stat-split-label">MA</span>
+                <span class="stat-val-small" id="statGradedMA">0</span>
+              </div>
+              <div class="stat-split-divider"></div>
+              <div class="stat-split-item">
+                <span class="stat-split-label">ATP</span>
+                <span class="stat-val-small" id="statGradedATP">0</span>
+              </div>
+            </div>
+            <span class="stat-desc">Dokumen berstatus dinilai</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Menunggu Penilaian</span>
+            <div class="stat-split-val" style="color: var(--warning)">
+              <div class="stat-split-item">
+                <span class="stat-split-label">MA</span>
+                <span class="stat-val-small" id="statPendingMA">0</span>
+              </div>
+              <div class="stat-split-divider"></div>
+              <div class="stat-split-item">
+                <span class="stat-split-label">ATP</span>
+                <span class="stat-val-small" id="statPendingATP">0</span>
+              </div>
+            </div>
+            <span class="stat-desc">Belum diproses assesor</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Rata-rata Nilai</span>
+            <div class="stat-split-val">
+              <div class="stat-split-item">
+                <span class="stat-split-label">MA</span>
+                <span class="stat-val-small" id="statAverageMA">0.0</span>
+              </div>
+              <div class="stat-split-divider"></div>
+              <div class="stat-split-item">
+                <span class="stat-split-label">ATP</span>
+                <span class="stat-val-small" id="statAverageATP">0.0</span>
+              </div>
+            </div>
+            <span class="stat-desc">Dari seluruh dokumen dinilai</span>
+          </div>
+        </div>
+
+        <!-- Navigation Tab Pill Controls -->
+        <div class="tabs-wrapper">
+          <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('upload')">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path
+                  d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                <path
+                  d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
+              </svg>
+              Upload Dokumen (Guru)
+            </button>
+            <button class="tab-btn" onclick="switchTab('penilaian')">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm12 12H2V2h12v11z" />
+                <path
+                  d="M6 4.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2 3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5z" />
+              </svg>
+              Status Penilaian
+            </button>
+            <button class="tab-btn hidden" id="laporanTabBtn" onclick="switchTab('laporan')">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path
+                  d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z" />
+                <path
+                  d="M4.5 10a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5z" />
+              </svg>
+              Laporan Ekspor
+            </button>
+            <button class="tab-btn" id="loginTabBtn" onclick="switchTab('login')">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path
+                  d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2H3a2 2 0 0 0-2 2v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a2 2 0 0 0-2-2z" />
+                <path d="M8 11a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
+              </svg>
+              <span>Login Asesor</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- VIEW 1: Form Upload Panel -->
+      <main id="viewUpload" class="view-panel active">
+        <div class="form-card">
+          <form id="uploadForm" onsubmit="handleFormSubmit(event)">
+            <div class="form-grid">
+              <!-- Nama Guru -->
+              <div class="form-group">
+                <label for="namaGuru">
+                  Nama Guru
+                  <span class="required">*</span>
+                </label>
+                <select id="namaGuru" required onchange="handleTeacherSelectChange()">
+                  <option value="" disabled selected>-- Memuat Daftar Guru --</option>
+                </select>
+              </div>
+
+              <!-- Status Kepegawaian -->
+              <div class="form-group">
+                <label for="statusKepegawaian">Status Kepegawaian</label>
+                <input
+                  type="text"
+                  id="statusKepegawaian"
+                  readonly
+                  placeholder="Terisi otomatis"
+                  style="background-color: var(--border-light); cursor: not-allowed" />
+              </div>
+
+              <!-- NIP -->
+              <div class="form-group">
+                <label for="nip">NIP</label>
+                <input
+                  type="text"
+                  id="nip"
+                  readonly
+                  placeholder="Terisi otomatis"
+                  style="background-color: var(--border-light); cursor: not-allowed" />
+              </div>
+
+              <!-- Mata Pelajaran -->
+              <div class="form-group">
+                <label for="mapel">
+                  Mata Pelajaran
+                  <span class="required">*</span>
+                </label>
+                <select id="mapel" required>
+                  <option value="" disabled selected>-- Pilih Guru Terlebih Dahulu --</option>
+                </select>
+              </div>
+
+              <!-- Kelas -->
+              <div class="form-group">
+                <label for="kelas">
+                  Kelas
+                  <span class="required">*</span>
+                </label>
+                <select id="kelas" required>
+                  <option value="" disabled selected>-- Pilih Guru Terlebih Dahulu --</option>
+                </select>
+              </div>
+
+              <!-- Rombel -->
+              <div class="form-group">
+                <label for="rombel">
+                  Rombel
+                  <span class="required">*</span>
+                </label>
+                <input type="text" id="rombel" required placeholder="Contoh: PPLG 1, TKL 2" />
+              </div>
+
+              <!-- Topik / Keterangan -->
+              <div class="form-group full-width">
+                <label for="topik">
+                  Topik / Keterangan Dokumen
+                  <span class="required">*</span>
+                </label>
+                <input type="text" id="topik" required placeholder="Contoh: Analisis Data dan Algoritma Pemrograman" />
+              </div>
+
+              <!-- File Upload Zones -->
+              <div class="form-group full-width">
+                <label>
+                  Upload File Dokumen Pembelajaran (Wajib ATP & MA)
+                  <span class="required">*</span>
+                  <span class="help-text">Format: PDF (Maks 10MB per file)</span>
+                </label>
+
+                <div class="upload-split">
+                  <!-- Zona ATP -->
+                  <div class="upload-col">
+                    <label class="upload-label-sub">
+                      File ATP
+                      <span class="required">*</span>
+                    </label>
+                    <div id="dropZoneATP" class="upload-zone" onclick="document.getElementById('fileInputATP').click()">
+                      <div class="upload-icon">
+                        <svg
+                          width="24"
+                          height="24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          viewBox="0 0 24 24">
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                      </div>
+                      <span class="upload-text">Klik atau tarik file ATP</span>
+                      <input
+                        type="file"
+                        id="fileInputATP"
+                        accept="application/pdf"
+                        style="display: none"
+                        onchange="handleFileSelect(event, 'ATP')" />
+                    </div>
+                    <!-- Preview file terpilih -->
+                    <div id="filePreviewATP" class="file-preview">
+                      <div class="file-details">
+                        <span class="pdf-badge">PDF</span>
+                        <div>
+                          <div id="previewNameATP" class="file-name">filename.pdf</div>
+                          <div id="previewSizeATP" class="file-size">0 KB</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        class="btn-remove-file"
+                        onclick="removeSelectedFile('ATP')"
+                        title="Hapus File ATP">
+                        <svg
+                          width="18"
+                          height="18"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Zona MA -->
+                  <div class="upload-col">
+                    <label class="upload-label-sub">
+                      File Modul Ajar (MA)
+                      <span class="required">*</span>
+                    </label>
+                    <div id="dropZoneMA" class="upload-zone" onclick="document.getElementById('fileInputMA').click()">
+                      <div class="upload-icon">
+                        <svg
+                          width="24"
+                          height="24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          viewBox="0 0 24 24">
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                      </div>
+                      <span class="upload-text">Klik atau tarik file MA</span>
+                      <input
+                        type="file"
+                        id="fileInputMA"
+                        accept="application/pdf"
+                        style="display: none"
+                        onchange="handleFileSelect(event, 'MA')" />
+                    </div>
+                    <!-- Preview file terpilih -->
+                    <div id="filePreviewMA" class="file-preview">
+                      <div class="file-details">
+                        <span class="pdf-badge">PDF</span>
+                        <div>
+                          <div id="previewNameMA" class="file-name">filename.pdf</div>
+                          <div id="previewSizeMA" class="file-size">0 KB</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        class="btn-remove-file"
+                        onclick="removeSelectedFile('MA')"
+                        title="Hapus File MA">
+                        <svg
+                          width="18"
+                          height="18"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+              <button type="submit" id="btnSubmit" class="btn btn-primary">
+                <div class="spinner"></div>
+                <span class="btn-text">Unggah Dokumen</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+
+      <!-- VIEW 2: Dashboard Penilaian Panel -->
+      <main id="viewPenilaian" class="view-panel">
+        <div class="list-card">
+          <!-- Document Type Sub-tabs inside Dashboard -->
+          <div class="sub-tabs-wrapper">
+            <button type="button" class="sub-tab-btn active" id="subTabMA" onclick="switchSubTab('MA')">
+              Modul Ajar (MA)
+            </button>
+            <button type="button" class="sub-tab-btn" id="subTabATP" onclick="switchSubTab('ATP')">
+              Alur Tujuan Pembelajaran (ATP)
+            </button>
+          </div>
+          
+          <!-- Chart & Missing Uploads Section -->
+          <div class="stats-grid" style="grid-template-columns: 2fr 1fr; margin-bottom: 24px; gap: 20px;">
+            <div class="stat-card" style="padding: 20px; align-items: center; justify-content: center; min-height: 280px;">
+              <span class="stat-label" style="align-self: flex-start; margin-bottom: 12px;">Progres Unggahan (Semua Guru)</span>
+              <div style="position: relative; height: 220px; width: 100%; display: flex; justify-content: center;">
+                <canvas id="uploadChart"></canvas>
+              </div>
+            </div>
+            <div class="stat-card" style="padding: 20px; overflow-y: auto; max-height: 280px;">
+              <span class="stat-label" style="margin-bottom: 12px; display: block; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">Guru Belum Upload (0 Dokumen)</span>
+              <ul id="missingUploadsList" style="list-style: none; padding: 0; margin: 0; font-size: 13px; color: var(--text-secondary); line-height: 2; font-weight: 500;">
+                <!-- List will be populated by JS -->
+              </ul>
+            </div>
+          </div>
+
+          <!-- Filter controls -->
+          <div class="filter-panel">
+            <div class="search-input-wrapper">
+              <input
+                type="text"
+                id="searchFilter"
+                placeholder="Cari nama guru, mapel, topik..."
+                oninput="applyFilters()" />
+            </div>
+
+            <select id="filterKelas" class="filter-select" onchange="applyFilters()">
+              <option value="">Semua Kelas</option>
+              <option value="X">Kelas X</option>
+              <option value="XI">Kelas XI</option>
+              <option value="XII">Kelas XII</option>
+            </select>
+
+            <select id="filterStatus" class="filter-select" onchange="applyFilters()">
+              <option value="">Semua Status</option>
+              <option value="Belum Dinilai">Belum Dinilai</option>
+              <option value="Sudah Dinilai">Sudah Dinilai</option>
+            </select>
+          </div>
+
+          <!-- Submission Table -->
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Informasi Guru</th>
+                  <th>Detail Dokumen</th>
+                  <th style="text-align: center">Penilaian</th>
+                  <th style="text-align: right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="submissionTableBody">
+                <!-- Dynamic rows will be inserted here -->
+              </tbody>
+            </table>
+
+            <!-- Empty State -->
+            <div id="tableEmptyState" class="empty-state" style="display: none">
+              <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+              </svg>
+              <p>Belum ada data unggahan yang sesuai dengan filter.</p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- VIEW 3: Login Asesor Panel -->
+      <main id="viewLogin" class="view-panel">
+        <div class="form-card" style="max-width: 450px; margin: 0 auto">
+          <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 8px; text-align: center">Login Khusus Asesor</h2>
+          <p style="color: var(--text-secondary); font-size: 14px; text-align: center; margin-bottom: 24px">
+            Silakan masuk menggunakan kredensial asesor Anda untuk melakukan penilaian.
+          </p>
+
+          <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+            <div class="form-group" style="margin-bottom: 16px">
+              <label for="loginUsername">
+                Username
+                <span class="required">*</span>
+              </label>
+              <input type="text" id="loginUsername" required placeholder="Masukkan username" />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 24px">
+              <label for="loginPassword">
+                Password
+                <span class="required">*</span>
+              </label>
+              <input type="password" id="loginPassword" required placeholder="Masukkan password" />
+            </div>
+
+            <button type="submit" id="btnLogin" class="btn btn-primary" style="width: 100%">
+              <div class="spinner"></div>
+              <span class="btn-text">Masuk</span>
+            </button>
+          </form>
+        </div>
+      </main>
+
+      <!-- VIEW 4: Dedicated Grading Form Panel -->
+      <main id="viewGradeForm" class="view-panel">
+        <div class="grading-split-layout">
+          <!-- Left: Document Preview -->
+          <div
+            class="form-card grading-preview-col"
+            style="height: 100%; display: flex; flex-direction: column; padding: 0">
+            <div
+              style="
+                padding: 16px 20px;
+                border-bottom: 1px solid var(--border-light);
+                background: var(--background);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-radius: 18px 18px 0 0;
+              ">
+              <div>
+                <h2 style="font-size: 18px; font-weight: 700">Preview Dokumen</h2>
+                <div
+                  class="grade-detail-val"
+                  id="gradeFormFilename"
+                  style="font-family: var(--font-mono); font-size: 11px; color: var(--primary)">
+                  -
+                </div>
+              </div>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="cancelGrading()"
+                style="padding: 6px 12px; font-size: 12px">
+                Kembali
+              </button>
+            </div>
+            <div style="flex: 1; background: #e5e5e5; border-radius: 0 0 18px 18px; overflow: hidden">
+              <iframe id="gradeFormPdfPreview" src="" style="width: 100%; height: 100%; border: none"></iframe>
+            </div>
+          </div>
+
+          <!-- Right: Grading Form -->
+          <div class="grading-form-col">
+            <div
+              class="form-card"
+              style="margin: 0; min-height: max-content; display: flex; flex-direction: column; padding-top: 0">
+              <!-- Header & Info -->
+              <div
+                style="
+                  position: sticky;
+                  top: 0;
+                  background: var(--surface);
+                  z-index: 10;
+                  margin-left: -32px;
+                  margin-right: -32px;
+                  padding-left: 32px;
+                  padding-right: 32px;
+                  padding-top: 32px;
+                  border-radius: var(--card-radius) var(--card-radius) 0 0;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: flex-start;
+                  margin-bottom: 20px;
+                  border-bottom: 1px solid var(--border-light);
+                  padding-bottom: 16px;
+                ">
+                <div>
+                  <h2 style="font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px">
+                    Form Penilaian Dokumen
+                  </h2>
+                  <div
+                    id="gradeFormGuru"
+                    style="font-size: 14px; font-weight: 600; color: var(--primary); margin-bottom: 4px">
+                    -
+                  </div>
+                  <div
+                    style="
+                      font-size: 13px;
+                      color: var(--text-secondary);
+                      display: flex;
+                      align-items: center;
+                      gap: 6px;
+                      flex-wrap: wrap;
+                    ">
+                    <span id="gradeFormMapelKelas">-</span>
+                    &bull;
+                    <span id="gradeFormRombel">-</span>
+                  </div>
+                </div>
+                <!-- Final Score integrated in the header -->
+                <div
+                  style="
+                    text-align: right;
+                    background: var(--primary-light);
+                    padding: 8px 16px;
+                    border-radius: 12px;
+                    border: 1px dashed var(--primary);
+                    min-width: 120px;
+                    white-space: nowrap;
+                  ">
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: 10px;
+                      text-transform: uppercase;
+                      color: var(--primary);
+                      font-weight: 600;
+                      letter-spacing: 0.05em;
+                    ">
+                    Nilai Akhir
+                  </div>
+                  <div
+                    id="gradeFormAverageDisplay"
+                    style="font-size: 28px; font-weight: 800; color: var(--primary); line-height: 1">
+                    0.0
+                  </div>
+                </div>
+              </div>
+
+              <!-- Topik -->
+              <div
+                style="
+                  background: var(--background);
+                  border-radius: 8px;
+                  padding: 12px 16px;
+                  margin-bottom: 24px;
+                  font-size: 13px;
+                  border: 1px solid var(--border-light);
+                  display: flex;
+                  gap: 8px;
+                  align-items: flex-start;
+                ">
+                <svg
+                  style="margin-top: 2px; flex-shrink: 0"
+                  width="16"
+                  height="16"
+                  fill="var(--text-muted)"
+                  viewBox="0 0 16 16">
+                  <path
+                    d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+                </svg>
+                <div>
+                  <span style="font-weight: 600; color: var(--text-secondary); margin-right: 4px">
+                    Topik / Keterangan:
+                  </span>
+                  <span id="gradeFormTopik" style="color: var(--text-primary); line-height: 1.4">-</span>
+                </div>
+              </div>
+
+              <form
+                id="dedicatedGradeForm"
+                onsubmit="handleDedicatedGradeSubmit(event)"
+                style="flex: 1; display: flex; flex-direction: column">
+                <!-- Target Unique Key -->
+                <input type="hidden" id="gradeFormFileId" />
+
+                <!-- Bulk Actions -->
+                <div
+                  id="bulkGradeActions"
+                  style="
+                    display: none;
+                    margin-bottom: 16px;
+                    background: var(--surface-hover);
+                    padding: 12px 16px;
+                    border-radius: 8px;
+                    border: 1px solid var(--border-light);
+                    align-items: center;
+                    justify-content: space-between;
+                  ">
+                  <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary)">
+                    Isi Cepat Semua Kriteria:
+                  </span>
+                  <div style="display: flex; gap: 8px">
+                    <button
+                      type="button"
+                      class="btn btn-outline"
+                      style="padding: 6px 12px; font-size: 12px; border-color: var(--border-light)"
+                      onclick="bulkSetScore(0)">
+                      Semua 0
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline"
+                      style="padding: 6px 12px; font-size: 12px; border-color: var(--border-light)"
+                      onclick="bulkSetScore(1)">
+                      Semua 1
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline"
+                      style="padding: 6px 12px; font-size: 12px; border-color: var(--border-light)"
+                      onclick="bulkSetScore(2)">
+                      Semua 2
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Dynamic rubric container -->
+                <div
+                  id="rubricContainer"
+                  style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px">
+                  <!-- Javascript will dynamically inject sliders here -->
+                </div>
+
+                <div class="form-grid">
+                  <!-- Status Penilaian Dropdown -->
+                  <div class="form-group full-width">
+                    <label for="gradeFormStatus">
+                      Status Penilaian
+                      <span class="required">*</span>
+                    </label>
+                    <select id="gradeFormStatus" required>
+                      <option value="Belum Dinilai">Belum Dinilai</option>
+                      <option value="Sudah Dinilai" selected>Sudah Dinilai</option>
+                    </select>
+                  </div>
+
+                  <!-- Catatan Penilai -->
+                  <div class="form-group full-width">
+                    <label for="gradeFormNotes">Catatan & Umpan Balik Penilai</label>
+                    <textarea
+                      id="gradeFormNotes"
+                      rows="4"
+                      placeholder="Tuliskan saran perbaikan atau ulasan di sini..."></textarea>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" id="btnSaveGradeForm" class="btn btn-primary" style="width: 100%">
+                    <div class="spinner"></div>
+                    <span class="btn-text">Simpan Penilaian</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- VIEW 5: Laporan Ekspor Panel -->
+      <main id="viewLaporan" class="view-panel">
+        <div class="list-card" style="padding: 24px">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px">
+            <div>
+              <h2 style="font-size: 20px; font-weight: 700; color: var(--text-primary)">
+                Laporan Rekapitulasi Penilaian
+              </h2>
+              <p style="color: var(--text-secondary); font-size: 14px">
+                Ringkasan nilai dan kelengkapan dokumen ATP & MA untuk setiap guru.
+              </p>
+            </div>
+            <div style="display: flex; gap: 12px">
+              <button class="btn btn-secondary" onclick="exportLaporanPDF()" title="Eksport ke PDF">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                </svg>
+                PDF
+              </button>
+              <button class="btn btn-primary" onclick="exportLaporanExcel()" title="Eksport ke Excel">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                Excel
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container" style="max-height: calc(100vh - 250px); overflow-y: auto">
+            <table id="laporanTable">
+              <thead>
+                <tr>
+                  <th rowspan="2" style="min-width: 200px">Nama Guru</th>
+                  <th rowspan="2" style="min-width: 150px">Mata Pelajaran</th>
+                  <th rowspan="2">Kelas</th>
+                  <th
+                    colspan="5"
+                    style="
+                      text-align: center;
+                      border-left: 2px solid var(--border-light);
+                      background: rgba(237, 114, 76, 0.05);
+                    ">
+                    Alur Tujuan Pembelajaran (ATP)
+                  </th>
+                  <th
+                    colspan="5"
+                    style="
+                      text-align: center;
+                      border-left: 2px solid var(--border-light);
+                      background: rgba(59, 130, 246, 0.05);
+                    ">
+                    Modul Ajar (MA)
+                  </th>
+                </tr>
+                <tr>
+                  <!-- ATP -->
+                  <th style="border-left: 2px solid var(--border-light)">Dokumen</th>
+                  <th>Instrumen (Kosong)</th>
+                  <th>Validasi KS</th>
+                  <th style="text-align: center">Nilai</th>
+                  <th>Predikat</th>
+                  <!-- MA -->
+                  <th style="border-left: 2px solid var(--border-light)">Dokumen</th>
+                  <th>Instrumen (Kosong)</th>
+                  <th>Validasi KS</th>
+                  <th style="text-align: center">Nilai</th>
+                  <th>Predikat</th>
+                </tr>
+              </thead>
+              <tbody id="laporanTableBody">
+                <!-- Data will be populated via JS -->
+              </tbody>
+            </table>
+            <div id="laporanEmptyState" class="empty-state" style="display: none">
+              <p>Tidak ada data laporan yang tersedia.</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- TOAST Notification -->
+    <div id="toast" class="toast">
+      <span id="toastMessage">Pesan Notifikasi</span>
+    </div>
+
+    <!-- Modal for Rubric Breakdown View -->
+    <div id="breakdownModal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">Detail Nilai Rubrik</h3>
+          <button type="button" class="modal-close" onclick="closeBreakdownModal()">&times;</button>
+        </div>
+        <div class="grade-doc-details">
+          <div class="grade-detail-row">
+            <div class="grade-detail-label">Guru:</div>
+            <div class="grade-detail-val" id="breakdownGuru">-</div>
+          </div>
+          <div class="grade-detail-row">
+            <div class="grade-detail-label">Jenis Dokumen:</div>
+            <div class="grade-detail-val" id="breakdownJenis">-</div>
+          </div>
+        </div>
+        <div class="breakdown-list" id="breakdownList">
+          <!-- Breakdown scores will be dynamically inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Application Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+      window.jsPDF = window.jspdf.jsPDF;
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="js/assets.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

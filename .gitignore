@@ -1,0 +1,28 @@
+# IDEs
+.vscode/
+.idea/
+.gemini/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment Variables
+.env
+.env.local
+
+# Vercel
+.vercel/
+
+# Dependencies (if any added later)
+node_modules/
