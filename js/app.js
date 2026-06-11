@@ -427,13 +427,16 @@ function renderChartAndMissingUploads(data) {
   const ctx = document.getElementById('uploadChart');
   if (!ctx) return;
   
-  let atpCount = 0;
-  let maCount = 0;
+  const atpTeachers = new Set();
+  const maTeachers = new Set();
   
   data.forEach(item => {
-    if (item.jenisDokumen === 'ATP') atpCount++;
-    if (item.jenisDokumen === 'MA') maCount++;
+    if (item.jenisDokumen === 'ATP') atpTeachers.add(item.namaGuru);
+    if (item.jenisDokumen === 'MA') maTeachers.add(item.namaGuru);
   });
+
+  const atpCount = atpTeachers.size;
+  const maCount = maTeachers.size;
   
   const expectedTotal = teacherList.length;
   
