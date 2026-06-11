@@ -289,3 +289,47 @@ function gradeSubmission(fileId, score, feedback, status, points, pdfUrl) {
     };
   }
 }
+
+/**
+ * Saves multiple submission records to the Submissions sheet.
+ * @param {Object} data - Contains array of records to save.
+ */
+function saveSubmissionRecords(data) {
+  try {
+    var sheet = getOrCreateSubmissionsSheet();
+    var timestamp = new Date();
+    
+    var records = data.records;
+    for (var i = 0; i < records.length; i++) {
+      var r = records[i];
+      sheet.appendRow([
+        timestamp,
+        r.namaGuru,
+        r.statusKepegawaian,
+        r.nip,
+        r.jenisDokumen,
+        r.mapel,
+        r.kelas,
+        r.rombel,
+        r.topik,
+        r.fileName,
+        r.fileUrl,
+        r.fileId,
+        '',              // Nilai
+        '',              // Poin Penilaian
+        '',              // Catatan Penilai
+        'Belum Dinilai'  // Status Penilaian
+      ]);
+    }
+    
+    return {
+      success: true,
+      message: records.length + ' data berhasil disimpan ke database.'
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: 'Gagal menyimpan ke database: ' + err.toString()
+    };
+  }
+}

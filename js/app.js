@@ -367,7 +367,21 @@ async function handleFormSubmit(e) {
     const resMA = await API.uploadFile(payloadMA);
     if (!resMA.success) throw new Error("MA: " + resMA.message);
 
-    showToast("Berhasil mengunggah dokumen ATP dan MA!", "success");
+    // 3. Save Records to Database
+    btn.innerHTML = `
+      <div class="loader"></div>
+      Menyimpan Data...
+    `;
+    const dbPayload = {
+      records: [
+        { ...basePayload, jenisDokumen: "ATP", fileName: resATP.fileName, fileUrl: resATP.fileUrl, fileId: resATP.fileId },
+        { ...basePayload, jenisDokumen: "MA", fileName: resMA.fileName, fileUrl: resMA.fileUrl, fileId: resMA.fileId }
+      ]
+    };
+    const resDB = await API.saveSubmissionRecords(dbPayload);
+    if (!resDB.success) throw new Error("Database: " + resDB.message);
+
+    showToast("Berhasil mengunggah dan menyimpan dokumen ATP & MA!", "success");
     resetForm();
     loadDashboardData();
   } catch (err) {

@@ -19,7 +19,7 @@
 // Replace this with your deployed Google Apps Script Web App URL
 // Example: "https://script.google.com/macros/s/AKfycb.../exec"
 const GAS_WEB_APP_URL =
-  "https://script.google.com/macros/s/AKfycbxtdEe1r3O-cny9lU7rhtXfxPL5RkxUHA0W5ZRNdenKf8w-frE-SbPWZcsBKF5c9pP7/exec";
+  "https://script.google.com/macros/s/AKfycbxDrGToTP2WNUYyfg0km6n9w1ixdJoiiDXI7IQND9Qmr0n0642cge6uqaAAMGFc9fu5/exec";
 
 // ─── Environment Detection ──────────────────────────────────
 function isRunningLocally() {
@@ -90,6 +90,18 @@ const API = {
       return MockService.uploadFile(payload);
     }
     return await callGasAPI("uploadFile", payload);
+  },
+
+  /**
+   * Saves submission records to Google Sheets.
+   * @param {Object} payload - Data containing records array.
+   * @returns {Promise<Object>}
+   */
+  async saveSubmissionRecords(payload) {
+    if (isRunningLocally()) {
+      return MockService.saveSubmissionRecords(payload);
+    }
+    return await callGasAPI("saveSubmissionRecords", payload);
   },
 
   /**
@@ -238,33 +250,46 @@ const MockService = {
     const filename = `${cleanJenis}_${cleanNama}_${cleanMapel}_${cleanKelasCombo}.pdf`;
     const fileId = "mock-id-" + Math.random().toString(36).substring(2, 9);
 
-    const newRow = {
-      timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
-      namaGuru: payload.namaGuru,
-      statusKepegawaian: payload.statusKepegawaian,
-      nip: payload.nip,
-      jenisDokumen: payload.jenisDokumen,
-      mapel: payload.mapel,
-      kelas: payload.kelas,
-      rombel: payload.rombel,
-      topik: payload.topik,
-      filename: filename,
+    return {
+      success: true,
+      message: "Dokumen berhasil diunggah ke Drive (Mock Mode)!",
       fileUrl: "https://example.com/mock-drive-viewer/" + fileId,
+      fileName: filename,
       fileId: fileId,
-      nilai: "",
-      poinPenilaian: "",
-      catatan: "",
-      status: "Belum Dinilai",
     };
+  },
 
-    localData.unshift(newRow);
+  saveSubmissionRecords(payload) {
+    this._initSampleData();
+    const localData = JSON.parse(localStorage.getItem(this._STORAGE_KEY) || "[]");
+
+    const timestamp = new Date().toISOString().replace("T", " ").substring(0, 19);
+    payload.records.forEach((r) => {
+      localData.unshift({
+        timestamp: timestamp,
+        namaGuru: r.namaGuru,
+        statusKepegawaian: r.statusKepegawaian,
+        nip: r.nip,
+        jenisDokumen: r.jenisDokumen,
+        mapel: r.mapel,
+        kelas: r.kelas,
+        rombel: r.rombel,
+        topik: r.topik,
+        filename: r.fileName,
+        fileUrl: r.fileUrl,
+        fileId: r.fileId,
+        nilai: "",
+        poinPenilaian: "",
+        catatan: "",
+        status: "Belum Dinilai",
+      });
+    });
+
     localStorage.setItem(this._STORAGE_KEY, JSON.stringify(localData));
 
     return {
       success: true,
-      message: "Dokumen berhasil diunggah (Mock Mode)!",
-      fileUrl: newRow.fileUrl,
-      fileName: filename,
+      message: "Data berhasil disimpan (Mock Mode)!",
     };
   },
 

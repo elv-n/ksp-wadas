@@ -69,34 +69,12 @@ function uploadFile(data) {
     var fileUrl = file.getUrl();
     var fileId = file.getId();
     
-    // Write records to the Submissions sheet (16 columns)
-    var sheet = getOrCreateSubmissionsSheet();
-    var timestamp = new Date();
-    
-    sheet.appendRow([
-      timestamp,
-      data.namaGuru,
-      data.statusKepegawaian,
-      data.nip,
-      data.jenisDokumen,
-      data.mapel,
-      data.kelas,
-      data.rombel,
-      data.topik,
-      filename,
-      fileUrl,
-      fileId,
-      '',              // Nilai (final average score)
-      '',              // Poin Penilaian (criteria details JSON string)
-      '',              // Catatan Penilai
-      'Belum Dinilai'  // Status Penilaian
-    ]);
-    
     return {
       success: true,
       message: 'File berhasil diunggah dengan nama ' + filename,
       fileUrl: fileUrl,
-      fileName: filename
+      fileName: filename,
+      fileId: fileId
     };
   } catch (err) {
     return {

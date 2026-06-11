@@ -55,6 +55,10 @@ function doPost(e) {
         result = uploadFile(data);
         break;
 
+      case 'saveSubmissionRecords':
+        result = saveSubmissionRecords(data);
+        break;
+
       case 'gradeSubmission':
         result = gradeSubmission(
           data.fileId,
