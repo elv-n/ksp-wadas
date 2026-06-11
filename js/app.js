@@ -560,6 +560,9 @@ function renderTableAndStats(data) {
   emptyState.style.display = "none";
 
   filtered.forEach((item) => {
+    const currentTeacher = teacherList.find(t => t.nama === item.namaGuru);
+    const displayNIP = currentTeacher && currentTeacher.nip ? currentTeacher.nip : item.nip || "-";
+
     const statusBadgeClass = item.status === "Sudah Dinilai" ? "sudah" : "belum";
     const gradeActionHtml = isAsessorLoggedIn
       ? `<button onclick="openGradingForm('${encodeURIComponent(JSON.stringify(item))}')" class="btn-action ${item.nilai !== "" ? "btn-action-edit" : "btn-action-grade"}">${item.nilai !== "" ? "Ubah Nilai" : "Beri Nilai"}</button>`
@@ -584,7 +587,7 @@ function renderTableAndStats(data) {
     tr.innerHTML = `
       <td style="vertical-align: top; padding-top: 16px; width: 25%;">
         <div style="font-weight: 600; font-size: 14px; color: var(--text-primary); line-height: 1.2;">${item.namaGuru}</div>
-        <div style="font-size: 12px; font-family: var(--font-mono); color: var(--text-muted); margin-top: 4px;">NIP: ${item.nip}</div>
+        <div style="font-size: 12px; font-family: var(--font-mono); color: var(--text-muted); margin-top: 4px;">NIP: ${displayNIP}</div>
         <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">${item.timestamp.split(" ")[0]}</div>
       </td>
       <td class="wrap-text" style="vertical-align: top; padding-top: 16px; width: 35%;">
