@@ -1271,6 +1271,7 @@ function renderLaporanTable() {
         namaGuru: sub.namaGuru,
         mapel: sub.mapel,
         kelas: sub.kelas,
+        topik: sub.topik,
         ATP: null,
         MA: null
       };
@@ -1320,6 +1321,7 @@ function renderLaporanTable() {
       <td style="font-weight:600;">${grp.namaGuru}</td>
       <td>${grp.mapel}</td>
       <td>${grp.kelas}</td>
+      <td>${grp.topik}</td>
       <td style="border-left: 2px solid var(--border-light);">${atpDocLink}</td>
       <td>${atpKosongLink}</td>
       <td>${atpValidasiLink}</td>
@@ -1348,6 +1350,7 @@ function exportLaporanExcel() {
       "Nama Guru": grp.namaGuru,
       "Mata Pelajaran": grp.mapel,
       "Kelas": grp.kelas,
+      "Topik": grp.topik,
       
       "ATP - Link Dokumen": grp.ATP ? grp.ATP.fileUrl : "",
       "ATP - Link Instrumen (Kosong)": "https://docs.google.com/spreadsheets/d/1zS7KRYNccQCK4fYcSq2CMpvrSzU3pBNQ/edit?usp=sharing&ouid=117533810449034814395&rtpof=true&sd=true",
@@ -1399,6 +1402,7 @@ function exportLaporanPDF() {
         grp.namaGuru,
         grp.mapel,
         grp.kelas,
+        grp.topik,
         // ATP
         grp.ATP && grp.ATP.fileUrl ? grp.ATP.fileUrl : "-",
         "https://docs.google.com/spreadsheets/d/1zS7KRYNccQCK4fYcSq2CMpvrSzU3pBNQ/edit?usp=sharing&ouid=117533810449034814395&rtpof=true&sd=true",
@@ -1420,6 +1424,7 @@ function exportLaporanPDF() {
         { content: 'Nama Guru', rowSpan: 2, styles: { halign: 'center', valign: 'middle' } }, 
         { content: 'Mapel', rowSpan: 2, styles: { halign: 'center', valign: 'middle' } }, 
         { content: 'Kelas', rowSpan: 2, styles: { halign: 'center', valign: 'middle' } }, 
+        { content: 'Topik', rowSpan: 2, styles: { halign: 'center', valign: 'middle' } },
         { content: 'ATP', colSpan: 5, styles: { halign: 'center', fillColor: [237, 114, 76] } },
         { content: 'Modul Ajar', colSpan: 5, styles: { halign: 'center', fillColor: [59, 130, 246] } }
       ], [
@@ -1438,12 +1443,12 @@ function exportLaporanPDF() {
       theme: 'grid',
       styles: { fontSize: 5, cellPadding: 1, textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.1, overflow: 'linebreak' },
       columnStyles: {
-        3: { cellWidth: 25 },
         4: { cellWidth: 25 },
         5: { cellWidth: 25 },
-        8: { cellWidth: 25 },
+        6: { cellWidth: 25 },
         9: { cellWidth: 25 },
         10: { cellWidth: 25 },
+        11: { cellWidth: 25 },
       },
       headStyles: { textColor: [255,255,255], fontSize: 6 }
     });
