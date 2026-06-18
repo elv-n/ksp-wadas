@@ -1149,10 +1149,17 @@
     min-height: 600px;
   }
 
+  .grading-preview-col {
+    min-width: 0;
+    overflow: hidden;
+  }
+
   .grading-form-col {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
     padding-right: 10px;
   }
   
