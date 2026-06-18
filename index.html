@@ -497,12 +497,12 @@
                 align-items: center;
                 border-radius: 18px 18px 0 0;
               ">
-              <div>
+              <div style="flex: 1; min-width: 0; overflow: hidden;">
                 <h2 style="font-size: 18px; font-weight: 700">Preview Dokumen</h2>
                 <div
                   class="grade-detail-val"
                   id="gradeFormFilename"
-                  style="font-family: var(--font-mono); font-size: 11px; color: var(--primary)">
+                  style="font-family: var(--font-mono); font-size: 11px; color: var(--primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                   -
                 </div>
               </div>
@@ -543,14 +543,15 @@
                   margin-bottom: 20px;
                   border-bottom: 1px solid var(--border-light);
                   padding-bottom: 16px;
+                  gap: 12px;
                 ">
-                <div>
+                <div style="flex: 1; min-width: 0; overflow: hidden;">
                   <h2 style="font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px">
                     Form Penilaian Dokumen
                   </h2>
                   <div
                     id="gradeFormGuru"
-                    style="font-size: 14px; font-weight: 600; color: var(--primary); margin-bottom: 4px">
+                    style="font-size: 14px; font-weight: 600; color: var(--primary); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     -
                   </div>
                   <div
@@ -558,13 +559,14 @@
                       font-size: 13px;
                       color: var(--text-secondary);
                       display: flex;
-                      align-items: center;
+                      align-items: baseline;
                       gap: 6px;
                       flex-wrap: wrap;
+                      overflow: hidden;
                     ">
-                    <span id="gradeFormMapelKelas">-</span>
+                    <span id="gradeFormMapelKelas" style="white-space: nowrap;">-</span>
                     &bull;
-                    <span id="gradeFormRombel">-</span>
+                    <span id="gradeFormRombel" style="word-break: break-word; overflow-wrap: break-word;">-</span>
                   </div>
                 </div>
                 <!-- Final Score integrated in the header -->
@@ -577,6 +579,7 @@
                     border: 1px dashed var(--primary);
                     min-width: 120px;
                     white-space: nowrap;
+                    flex-shrink: 0;
                   ">
                   <div
                     style="

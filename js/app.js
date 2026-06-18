@@ -1063,12 +1063,12 @@ async function generateRubricPDFDocument(item, overridePoints = null) {
     
     doc.text(isMA ? "Fase/Program Keahlian" : "Fase", 15, startY + lineHeight * 3);
     doc.text(":", 50, startY + lineHeight * 3);
-    doc.text(isMA ? `${fase} / ${item.rombel}` : `${fase} / Kelas ${item.kelas}`, 55, startY + lineHeight * 3);
+    doc.text(isMA ? `${fase} / ${item.rombel}` : `${fase} / Kelas ${item.kelas}`, 55, startY + lineHeight * 3, { maxWidth: 140 });
     
     if (!isMA) {
       doc.text("PK/KK", 15, startY + lineHeight * 4);
       doc.text(":", 50, startY + lineHeight * 4);
-      doc.text(item.rombel, 55, startY + lineHeight * 4);
+      doc.text(item.rombel, 55, startY + lineHeight * 4, { maxWidth: 140 });
     }
     
     doc.text("Tahun Ajaran", 15, startY + lineHeight * (isMA ? 4 : 5));
