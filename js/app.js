@@ -408,6 +408,65 @@ function resetForm() {
   document.getElementById("kelas").innerHTML = '<option value="" disabled selected>-- Pilih Guru Terlebih Dahulu --</option>';
 }
 
+function resetFilters() {
+  document.getElementById("filterKelas").value = "";
+  document.getElementById("filterStatus").value = "";
+  document.getElementById("searchBox").value = "";
+  renderSubmissionsTable();
+}
+
+window.repairAllBrokenLinks = async function() {
+  const gradedItems = allSubmissions.filter(s => s.status === "Sudah Dinilai" || s.status === "Revisi" || s.nilai !== "");
+  if (gradedItems.length === 0) {
+    showToast("Tidak ada data yang sudah dinilai.", "warning");
+    return;
+  }
+  
+  const confirmStart = confirm(`Ditemukan ${gradedItems.length} dokumen yang sudah dinilai. Sistem akan mengenerate ulang PDF untuk semuanya satu-per-satu dan memperbarui linknya. Proses ini mungkin memakan waktu beberapa menit. Lanjutkan?`);
+  if (!confirmStart) return;
+  
+  showToast("Memulai proses generate ulang... Mohon jangan tutup halaman ini.", "success");
+  
+  let successCount = 0;
+  let failCount = 0;
+  
+  for (let i = 0; i < gradedItems.length; i++) {
+    const item = gradedItems[i];
+    console.log(`[${i+1}/${gradedItems.length}] Memproses: ${item.namaGuru} - ${item.mapel} (${item.jenisDokumen})`);
+    showToast(`Memproses ${i+1}/${gradedItems.length}: ${item.namaGuru}`, "info");
+    
+    try {
+      const pointsObj = item.poinPenilaian ? JSON.parse(item.poinPenilaian) : {};
+      const { doc, filename } = await generateRubricPDFDocument(item, pointsObj);
+      
+      const dataUri = doc.output('datauristring');
+      const base64Str = dataUri.split(',')[1];
+      
+      const uploadRes = await API.uploadGradedRubric({
+        filename: filename,
+        base64File: base64Str
+      });
+      
+      if (!uploadRes.success) throw new Error(uploadRes.message);
+      
+      const pdfUrl = uploadRes.fileUrl;
+      
+      const response = await API.gradeSubmission(item.fileId, item.nilai, item.catatan || "", item.status, item.poinPenilaian || "{}", pdfUrl);
+      
+      if (!response.success) throw new Error(response.message);
+      
+      console.log(`✅ Berhasil: ${filename}`);
+      successCount++;
+    } catch (err) {
+      console.error(`❌ Gagal memproses ${item.namaGuru}:`, err.message);
+      failCount++;
+    }
+  }
+  
+  alert(`Proses selesai!\nBerhasil: ${successCount}\nGagal: ${failCount}\n\nSilakan refresh halaman untuk memuat link terbaru.`);
+  location.reload();
+}
+
 // ─── Dashboard Data & Rendering ─────────────────────────────
 
 async function loadDashboardData() {
@@ -1034,7 +1093,11 @@ async function generateRubricPDFDocument(item, overridePoints = null) {
     // Configs
     const isMA = item.jenisDokumen === "MA";
     const title = isMA ? "INSTRUMEN VERIFIKASI MODUL AJAR (MA) SMK" : "INSTRUMEN VERIFIKASI ALUR TUJUAN PEMBELAJARAN (ATP) SMK";
-    currentPdfFilename = isMA ? `Instrumen_MA_${item.namaGuru.replace(/ /g, "_")}.pdf` : `Instrumen_ATP_${item.namaGuru.replace(/ /g, "_")}.pdf`;
+    
+    // Create unique filename using fileId or timestamp to prevent overwrite and trashing bug
+    const cleanNama = item.namaGuru ? item.namaGuru.replace(/[\\\/:*?"<>| ]/g, '_') : 'Unknown';
+    const uniqueId = item.fileId || new Date().getTime();
+    currentPdfFilename = `Instrumen_${isMA ? 'MA' : 'ATP'}_${cleanNama}_${uniqueId}.pdf`;
     
     let fase = item.kelas === "X" ? "Fase E" : "Fase F";
     
