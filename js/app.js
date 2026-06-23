@@ -624,17 +624,17 @@ function renderTableAndStats(data) {
 
     const statusBadgeClass = item.status === "Sudah Dinilai" ? "sudah" : "belum";
     const gradeActionHtml = isAsessorLoggedIn
-      ? `<button onclick="openGradingForm('${encodeURIComponent(JSON.stringify(item))}')" class="btn-action ${item.nilai !== "" ? "btn-action-edit" : "btn-action-grade"}">${item.nilai !== "" ? "Ubah Nilai" : "Beri Nilai"}</button>`
+      ? `<button onclick="openGradingForm('${encodeURIComponent(JSON.stringify(item)).replace(/'/g, "%27")}')" class="btn-action ${item.nilai !== "" ? "btn-action-edit" : "btn-action-grade"}">${item.nilai !== "" ? "Ubah Nilai" : "Beri Nilai"}</button>`
       : "";
 
     const downloadPdfHtml =
       item.status === "Sudah Dinilai" && (item.jenisDokumen === "ATP" || item.jenisDokumen === "MA")
-        ? `<button onclick="downloadPenilaianPDF('${encodeURIComponent(JSON.stringify(item))}')" class="btn-action" style="color: var(--success)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> Unduh Penilaian</button>`
+        ? `<button onclick="downloadPenilaianPDF('${encodeURIComponent(JSON.stringify(item)).replace(/'/g, "%27")}')" class="btn-action" style="color: var(--success)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> Unduh Penilaian</button>`
         : "";
 
     const badgeHtml =
       item.nilai !== ""
-        ? `<button type="button" class="badge-status ${statusBadgeClass}" onclick="showBreakdown('${encodeURIComponent(JSON.stringify(item))}')" style="cursor: pointer; border: none; font-family: inherit;" title="Lihat Detail Rubrik">${item.status}</button>`
+        ? `<button type="button" class="badge-status ${statusBadgeClass}" onclick="showBreakdown('${encodeURIComponent(JSON.stringify(item)).replace(/'/g, "%27")}')" style="cursor: pointer; border: none; font-family: inherit;" title="Lihat Detail Rubrik">${item.status}</button>`
         : `<span class="badge-status ${statusBadgeClass}">${item.status}</span>`;
 
     const scoreHtml =
