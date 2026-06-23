@@ -425,7 +425,20 @@ window.repairAllBrokenLinks = async function() {
   const confirmStart = confirm(`Ditemukan ${gradedItems.length} dokumen yang sudah dinilai. Sistem akan mengenerate ulang PDF untuk semuanya satu-per-satu dan memperbarui linknya. Proses ini mungkin memakan waktu beberapa menit. Lanjutkan?`);
   if (!confirmStart) return;
   
-  showToast("Memulai proses generate ulang... Mohon jangan tutup halaman ini.", "success");
+  const progressModal = document.getElementById("progressModal");
+  const progressText = document.getElementById("progressText");
+  const progressBar = document.getElementById("progressBar");
+  const progressStatus = document.getElementById("progressStatus");
+  
+  if (progressModal) {
+    progressModal.style.display = "flex";
+    setTimeout(() => progressModal.classList.add("active"), 10);
+    progressBar.style.width = "0%";
+    progressStatus.textContent = `0/${gradedItems.length}`;
+    progressText.textContent = "Memulai proses...";
+  } else {
+    showToast("Memulai proses generate ulang... Mohon jangan tutup halaman ini.", "success");
+  }
   
   let successCount = 0;
   let failCount = 0;
@@ -433,7 +446,15 @@ window.repairAllBrokenLinks = async function() {
   for (let i = 0; i < gradedItems.length; i++) {
     const item = gradedItems[i];
     console.log(`[${i+1}/${gradedItems.length}] Memproses: ${item.namaGuru} - ${item.mapel} (${item.jenisDokumen})`);
-    showToast(`Memproses ${i+1}/${gradedItems.length}: ${item.namaGuru}`, "info");
+    
+    if (progressModal) {
+      progressText.textContent = `Memproses: ${item.namaGuru} - ${item.mapel} (${item.jenisDokumen})`;
+      const percentage = Math.round(((i) / gradedItems.length) * 100);
+      progressBar.style.width = `${percentage}%`;
+      progressStatus.textContent = `${i}/${gradedItems.length} (${percentage}%)`;
+    } else {
+      showToast(`Memproses ${i+1}/${gradedItems.length}: ${item.namaGuru}`, "info");
+    }
     
     try {
       const pointsObj = item.poinPenilaian ? JSON.parse(item.poinPenilaian) : {};
@@ -463,8 +484,23 @@ window.repairAllBrokenLinks = async function() {
     }
   }
   
-  alert(`Proses selesai!\nBerhasil: ${successCount}\nGagal: ${failCount}\n\nSilakan refresh halaman untuk memuat link terbaru.`);
-  location.reload();
+  if (progressModal) {
+    progressBar.style.width = "100%";
+    progressStatus.textContent = `${gradedItems.length}/${gradedItems.length} (100%)`;
+    progressText.textContent = "Proses selesai!";
+    
+    // Give a small delay before hiding modal and showing alert
+    await new Promise(resolve => setTimeout(resolve, 500));
+    progressModal.classList.remove("active");
+    setTimeout(() => {
+      progressModal.style.display = "none";
+      alert(`Proses selesai!\nBerhasil: ${successCount}\nGagal: ${failCount}\n\nSilakan refresh halaman untuk memuat link terbaru.`);
+      location.reload();
+    }, 200);
+  } else {
+    alert(`Proses selesai!\nBerhasil: ${successCount}\nGagal: ${failCount}\n\nSilakan refresh halaman untuk memuat link terbaru.`);
+    location.reload();
+  }
 }
 
 // ─── Dashboard Data & Rendering ─────────────────────────────

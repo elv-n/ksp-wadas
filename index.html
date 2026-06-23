@@ -843,6 +843,18 @@
       </div>
     </div>
 
+    <!-- Modal for Progress PDF Generation -->
+    <div id="progressModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 9999;">
+      <div class="modal-card" style="text-align: center; max-width: 400px; padding: 24px;">
+        <h3 class="modal-title" style="margin-bottom: 15px; justify-content: center;">Memperbaiki Link PDF...</h3>
+        <p id="progressText" style="margin-bottom: 20px; font-size: 14px; color: var(--text-secondary);">Mohon tunggu, jangan tutup halaman ini.</p>
+        <div style="width: 100%; background-color: var(--border-light); border-radius: 8px; height: 12px; overflow: hidden; margin-bottom: 10px;">
+          <div id="progressBar" style="width: 0%; height: 100%; background-color: var(--primary); transition: width 0.3s ease;"></div>
+        </div>
+        <p id="progressStatus" style="font-weight: 600; color: var(--text-primary); font-size: 14px;">0/0</p>
+      </div>
+    </div>
+
     <!-- Application Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
